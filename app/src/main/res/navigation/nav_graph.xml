@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/nav_graph"
+    app:startDestination="@id/nav_inventory">
+
+    <fragment
+        android:id="@+id/nav_inventory"
+        android:name="com.example.marketrack.InventoryFragment"
+        android:label="Inventory"
+        tools:layout="@layout/fragment_inventory">
+        <action
+            android:id="@+id/action_inventory_to_addProduct"
+            app:destination="@id/nav_add_product" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/nav_record_sale"
+        android:name="com.example.marketrack.RecordSaleFragment"
+        android:label="Record Sale"
+        tools:layout="@layout/fragment_record_sale" />
+
+    <fragment
+        android:id="@+id/nav_reports"
+        android:name="com.example.marketrack.ReportsFragment"
+        android:label="Reports"
+        tools:layout="@layout/fragment_reports" />
+
+    <fragment
+        android:id="@+id/nav_add_product"
+        android:name="com.example.marketrack.AddProductFragment"
+        android:label="Add Product"
+        tools:layout="@layout/fragment_add_product">
+
+        <argument
+            android:name="productId"
+            app:argType="integer"
+            android:defaultValue="-1" />
+    </fragment>
+</navigation>
