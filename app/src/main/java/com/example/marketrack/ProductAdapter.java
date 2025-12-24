@@ -6,7 +6,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 import androidx.annotation.NonNull;
-import androidx.cardview.widget.CardView;
 import androidx.recyclerview.widget.RecyclerView;
 import java.util.ArrayList;
 import java.util.List;
@@ -14,9 +13,9 @@ import java.util.List;
 public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ProductViewHolder> {
 
     private List<Product> productList = new ArrayList<>();
-    private OnProductClickListener listener; // Click Listener
+    private List<Product> productListFull = new ArrayList<>(); // Arama için yedek liste
+    private OnProductClickListener listener;
 
-    // Interface to handle clicks
     public interface OnProductClickListener {
         void onProductClick(Product product);
     }
@@ -27,6 +26,24 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ProductV
 
     public void setProducts(List<Product> products) {
         this.productList = products;
+        this.productListFull = new ArrayList<>(products); // Orijinal veriyi yedekle
+        notifyDataSetChanged();
+    }
+
+    // --- FİLTRELEME METODU ---
+    public void filterList(String text) {
+        List<Product> filteredList = new ArrayList<>();
+        if (text == null || text.isEmpty()) {
+            filteredList.addAll(productListFull); // Arama boşsa hepsini göster
+        } else {
+            String filterPattern = text.toLowerCase().trim();
+            for (Product item : productListFull) {
+                if (item.getName().toLowerCase().contains(filterPattern)) {
+                    filteredList.add(item);
+                }
+            }
+        }
+        this.productList = filteredList;
         notifyDataSetChanged();
     }
 
@@ -43,23 +60,18 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ProductV
         Product currentProduct = productList.get(position);
 
         holder.tvName.setText(currentProduct.getName());
-        holder.tvPrice.setText("Sell: " + currentProduct.getSellingPrice());
-        holder.tvStock.setText("Stock: " + currentProduct.getStockQuantity());
+        holder.tvPrice.setText("Sell: $" + currentProduct.getSellingPrice());
 
-        // --- UC8: Low Stock Alert (Visual) ---
-        // If stock is low, change the card background color or text color
         if (currentProduct.getStockQuantity() <= currentProduct.getLowStockThreshold()) {
             holder.tvStock.setTextColor(Color.RED);
             holder.tvStock.setText("Stock: " + currentProduct.getStockQuantity() + " (LOW!)");
         } else {
             holder.tvStock.setTextColor(Color.BLACK);
+            holder.tvStock.setText("Stock: " + currentProduct.getStockQuantity());
         }
 
-        // Handle Item Click (Open Edit Screen)
         holder.itemView.setOnClickListener(v -> {
-            if (listener != null) {
-                listener.onProductClick(currentProduct);
-            }
+            if (listener != null) listener.onProductClick(currentProduct);
         });
     }
 

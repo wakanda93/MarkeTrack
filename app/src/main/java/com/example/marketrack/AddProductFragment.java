@@ -22,8 +22,8 @@ public class AddProductFragment extends Fragment {
     private Button btnSave, btnDelete, btnCancel;
     private TextView tvHeader;
 
-    private int productId = -1; // Default to -1 (Add Mode)
-    private Product currentProduct; // Holds the product being edited
+    private int productId = -1;
+    private Product currentProduct;
 
     @Nullable
     @Override
@@ -45,7 +45,7 @@ public class AddProductFragment extends Fragment {
         btnCancel = view.findViewById(R.id.btnCancel);
         tvHeader = view.findViewById(R.id.tvHeader);
 
-        // 2. Check Arguments (Did we come here to Edit?)
+        // 2. Check Arguments
         if (getArguments() != null) {
             productId = getArguments().getInt("productId", -1);
         }
@@ -54,9 +54,9 @@ public class AddProductFragment extends Fragment {
             // --- EDIT MODE ---
             tvHeader.setText("Edit Product");
             btnSave.setText("Update Product");
-            btnDelete.setVisibility(View.VISIBLE); // Show Delete Button
+            btnDelete.setVisibility(View.VISIBLE);
 
-            // Load Data from Database
+            // Load Data
             MarketDatabase.getDatabase(getContext()).productDao().getProduct(productId).observe(getViewLifecycleOwner(), product -> {
                 if (product != null) {
                     currentProduct = product;
@@ -70,18 +70,21 @@ public class AddProductFragment extends Fragment {
             // --- ADD MODE ---
             tvHeader.setText("Add New Product");
             btnSave.setText("Save Product");
-            btnDelete.setVisibility(View.GONE); // Hide Delete Button
+            btnDelete.setVisibility(View.GONE);
         }
 
         // 3. Set Listeners
         btnSave.setOnClickListener(v -> saveProduct());
         btnDelete.setOnClickListener(v -> deleteProduct());
+
         btnCancel.setOnClickListener(v -> {
+            closeKeyboard();
             if (getView() != null) Navigation.findNavController(getView()).popBackStack();
         });
     }
 
     private void saveProduct() {
+        closeKeyboard(); // Close keyboard
         String name = etName.getText().toString().trim();
         String purchaseStr = etPurchase.getText().toString().trim();
         String sellingStr = etSelling.getText().toString().trim();
@@ -105,7 +108,7 @@ public class AddProductFragment extends Fragment {
                 // UPDATE EXISTING
                 if (currentProduct != null) {
                     Product updatedProduct = new Product(name, purchasePrice, sellingPrice, stock, 10);
-                    updatedProduct.setId(productId); // IMPORTANT: Keep the same ID!
+                    updatedProduct.setId(productId);
                     MarketDatabase.getDatabase(getContext()).productDao().update(updatedProduct);
                 }
             }
@@ -120,13 +123,29 @@ public class AddProductFragment extends Fragment {
     private void deleteProduct() {
         if (currentProduct == null) return;
 
-        MarketDatabase.databaseWriteExecutor.execute(() -> {
-            MarketDatabase.getDatabase(getContext()).productDao().delete(currentProduct);
+        // ENGLISH ALERT DIALOG
+        new androidx.appcompat.app.AlertDialog.Builder(getContext())
+                .setTitle("Delete Product")
+                .setMessage("Are you sure you want to delete this product? This action cannot be undone.")
+                .setPositiveButton("Yes, Delete", (dialog, which) -> {
+                    MarketDatabase.databaseWriteExecutor.execute(() -> {
+                        MarketDatabase.getDatabase(getContext()).productDao().delete(currentProduct);
+                        getActivity().runOnUiThread(() -> {
+                            Toast.makeText(getContext(), "Product Deleted!", Toast.LENGTH_SHORT).show();
+                            if (getView() != null) androidx.navigation.Navigation.findNavController(getView()).popBackStack();
+                        });
+                    });
+                })
+                .setNegativeButton("Cancel", null)
+                .show();
+    }
 
-            getActivity().runOnUiThread(() -> {
-                Toast.makeText(getContext(), "Product Deleted!", Toast.LENGTH_SHORT).show();
-                if (getView() != null) Navigation.findNavController(getView()).popBackStack();
-            });
-        });
+    private void closeKeyboard() {
+        View view = getActivity().getCurrentFocus();
+        if (view != null) {
+            android.view.inputmethod.InputMethodManager imm = (android.view.inputmethod.InputMethodManager)
+                    getActivity().getSystemService(android.content.Context.INPUT_METHOD_SERVICE);
+            imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
+        }
     }
 }

@@ -14,12 +14,50 @@
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Financial Report"
+            android:text="Financial Reports"
             android:textSize="28sp"
             android:textStyle="bold"
             android:gravity="center"
-            android:layout_marginBottom="24dp"
+            android:layout_marginBottom="16dp"
             android:textColor="#333333"/>
+
+        <RadioGroup
+            android:id="@+id/radioGroupFilter"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center"
+            android:background="@android:drawable/dialog_holo_light_frame"
+            android:layout_marginBottom="24dp"
+            android:checkedButton="@+id/radioAll">
+
+            <RadioButton
+                android:id="@+id/radioAll"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="All"
+                android:layout_marginEnd="8dp"/>
+
+            <RadioButton
+                android:id="@+id/radioToday"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Today"
+                android:layout_marginEnd="8dp"/>
+
+            <RadioButton
+                android:id="@+id/radioWeek"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Week"
+                android:layout_marginEnd="8dp"/>
+
+            <RadioButton
+                android:id="@+id/radioMonth"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Month"/>
+        </RadioGroup>
 
         <androidx.cardview.widget.CardView
             android:layout_width="match_parent"
@@ -35,6 +73,7 @@
                 android:padding="20dp">
 
                 <TextView
+                    android:id="@+id/tvRevenueTitle"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Total Revenue"
@@ -66,6 +105,7 @@
                 android:padding="20dp">
 
                 <TextView
+                    android:id="@+id/tvCostTitle"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Total Cost"
@@ -98,6 +138,7 @@
                 android:padding="20dp">
 
                 <TextView
+                    android:id="@+id/tvProfitTitle"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Net Profit"
